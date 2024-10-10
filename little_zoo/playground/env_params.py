@@ -2,12 +2,9 @@ import os
 import numpy as np
 from collections import OrderedDict
 
-from little_zoo.playground.color_generation import *
-
-
 def get_env_params(max_nb_objects=3,
                    admissible_actions=('Move', 'Grasp', 'Grow'),
-                   admissible_attributes=('colors', 'categories', 'types'),
+                   admissible_attributes=('categories', 'types'),
                    min_max_sizes=((0.2, 0.25), (0.25, 0.3)),
                    agent_size=0.05,
                    epsilon_initial_pos=0.3,
@@ -49,54 +46,28 @@ def get_env_params(max_nb_objects=3,
     -------
     params: dict
     """
-    
-    #test_obj = ('potato', 'shark', 'coyote', 'rhinoceros', 'cow', 'lamp', 'sofa')
-    #train_obj = ('door', 'chair', 'desk', 'table', 'cupboard', 'sink', 'window', 'sofa', 'carpet', 'carrot', 'beet', 'berry', 'pea', 'lion', 'grizzly', 'fox', 'bobcat', 'elephant', 'giraffe', 'pig', 'sheep')
-
 
     # list objects and categories
     furnitures = (
-        'door', 'chair', 'desk', 'lamp', 'table', 'cupboard', 'sink', 'window', 'sofa', 'carpet',
-        'bed', 'stool', 'cabinet', 'mirror', 'bookshelf', 'dresser', 'bench', 'wardrobe', 'shelf', 'cushion',
-        'clock', 'rug', 'pillow', 'mattress', 'curtain', 'radiator', 'bathtub', 'chandelier', 'fan', 'oven',
-        'stove', 'fridge', 'freezer', 'toaster', 'blender', 'microwave', 'dishwasher', 'kettle', 'bookcase',
-        'ottoman', 'recliner', 'couch', 'hammock', 'piano', 'television', 'stereo', 'speaker', 'radio', 'painting',
-        'vase', 'doormat', 'planter', 'grill', 'shade', 'blind', 'cup', 'plate', 'knife', 'fork',
-        'spoon', 'bowl', 'tray', 'glass', 'pan', 'pot', 'bucket', 'jar', 'basket', 'bell',
-        'ladder', 'candle', 'scissor', 'clock', 'pillow', 'towel', 'mug', 'bottle', 'shelf', 'cushion'
+        'door', 'chair', 'desk', 'lamp', 'table', 'cupboard'
     )
 
     
     plants = (
-        'carrot', 'beet', 'berry', 'pea', 'potato', 'broccoli', 'lettuce', 'tomato', 'cucumber', 'spinach',
-        'onion', 'garlic', 'cabbage', 'radish', 'pumpkin', 'zucchini', 'eggplant', 'pepper', 'kale', 'corn'
+        'carrot', 'potato', 'berry', 'lettuce', 'tomato', 'cucumber'
     )
 
-    small_carnivores = (
-        'fox', 'bobcat', 'coyote', 'ferret', 'meerkat', 'raccoon', 'weasel', 'mink', 'badger', 'otter',
-        'marten', 'genet', 'civet', 'fossa', 'shrew', 'polecat', 'ocelot', 'coati', 'serval', 'ringtail'
+    herbivores = (
+        'cow', 'elephant', 'rabbit', 'deer', 'sheep', 'giraffe'
     )
-
-    big_carnivores = (
-        'lion', 'grizzly', 'shark', 'tiger', 'crocodile', 'wolf', 'leopard', 'jaguar', 'hyena', 'cheetah',
-        'panther', 'cougar', 'puma', 'alligator', 'wolverine', 'orca', 'komodo', 'anaconda', 'python', 'vulture'
-    )
-
-    small_herbivores = (
-        'pig', 'cow', 'sheep', 'mouse', 'rabbit', 'koala', 'chimpanzee', 'goat', 'deer', 'beaver',
-        'hamster', 'squirrel', 'porcupine', 'capybara', 'chinchilla', 'hare', 'wallaby', 'possum', 'lemur', 'hedgehog'
-    )
-
-    big_herbivores = (
-        'elephant', 'giraffe', 'rhinoceros', 'hippopotamus', 'bison', 'camel', 'moose', 'horse', 'zebra', 'buffalo',
-        'elk', 'antelope', 'wildebeest', 'reindeer', 'caribou', 'ox', 'tapir', 'manatee', 'gorilla', 'okapi'
+    
+    carnivores = (
+        'lion', 'tiger', 'bobcat', 'panthera', 'coyote', 'wolf'
     )
 
     
     supplies = ('water',)
     
-    herbivores = small_herbivores + big_herbivores
-    carnivores = small_carnivores + big_carnivores
     animals = herbivores + carnivores
     living_things = animals + plants
     categories = dict(living_thing=living_things,
@@ -105,11 +76,7 @@ def get_env_params(max_nb_objects=3,
                       supply=supplies,
                       plant=plants,
                       carnivore=carnivores,
-                      herbivore=herbivores,
-                      small_carnivore=small_carnivores,
-                      big_carnivore=big_carnivores,
-                      small_herbivore=small_herbivores,
-                      big_herbivore=big_herbivores)
+                      herbivore=herbivores)
     
     # List types
     types = ()
@@ -119,27 +86,13 @@ def get_env_params(max_nb_objects=3,
     nb_types = len(types)
 
     # List attributes
-    colors = (
-    "red", "green", "blue", "yellow", "purple", "orange", "pink", "brown", "black", "white",
-    "gray", "cyan", "magenta", "lime", "indigo", "violet", "turquoise", "beige", "lavender", "coral",
-    "gold", "silver", "maroon", "navy", "teal", "olive", "salmon", "plum", "chocolate", "tan",
-    "peach", "crimson", "aqua", "ivory", "orchid", "khaki", "mint", "amber", "ruby", "emerald",
-    "jade", "bronze", "sapphire", "periwinkle", "slate", "amethyst", "fuchsia", "azure", "charcoal", "rose"
-    )
-    shades = ('light', 'dark')
     sizes = ('big', 'small')
     positions = ('left', 'right', 'top', 'bottom')
-    relative_shades = ('lightest', 'darkest')
-    relative_sizes = ('smallest', 'biggest')
     relative_positions = ('leftest', 'rightest', 'highest', 'lowest')
     attributes = dict(types=types,
                       categories=tuple(categories.keys()),
-                      colors=colors,
-                      shades=shades,
                       sizes=sizes,
                       positions=positions,
-                      relative_shades=relative_shades,
-                      relative_sizes=relative_sizes,
                       relative_positions=relative_positions)
 
     # Get the list of admissible attributes
@@ -157,33 +110,7 @@ def get_env_params(max_nb_objects=3,
         assert att in attributes.keys()
 
     # This defines the list of occurrences that should belong to the test set. All descriptions that contain them belong to the testing set.
-    words_test_set_def = tuple(f'{c} potato' for c in colors + ('any',)) + \
-                         tuple(f'{c} broccoli' for c in colors + ('any',)) + \
-                         tuple(f'{c} lettuce' for c in colors + ('any',)) + \
-                         tuple(f'{c} tomato' for c in colors + ('any',)) + \
-                         tuple(f'{c} cucumber' for c in colors + ('any',)) + \
-                         tuple(f'{c} shark' for c in colors + ('any',)) + \
-                         tuple(f'{c} tiger' for c in colors + ('any',)) + \
-                         tuple(f'{c} crocodile' for c in colors + ('any',)) + \
-                         tuple(f'{c} wolf' for c in colors + ('any',)) + \
-                         tuple(f'{c} leopard' for c in colors + ('any',)) + \
-                         tuple(f'{c} coyote' for c in colors + ('any',)) + \
-                         tuple(f'{c} ferret' for c in colors + ('any',)) + \
-                         tuple(f'{c} meerkat' for c in colors + ('any',)) + \
-                         tuple(f'{c} raccoon' for c in colors + ('any',)) + \
-                         tuple(f'{c} weasel' for c in colors + ('any',)) + \
-                         tuple(f'{c} rhinoceros' for c in colors + ('any',)) + \
-                         tuple(f'{c} hippopotamus' for c in colors + ('any',)) + \
-                         tuple(f'{c} bison' for c in colors + ('any',)) + \
-                         tuple(f'{c} camel' for c in colors + ('any',)) + \
-                         tuple(f'{c} moose' for c in colors + ('any',)) + \
-                         tuple(f'{c} cow' for c in colors + ('any',)) + \
-                         tuple(f'{c} mouse' for c in colors + ('any',)) + \
-                         tuple(f'{c} rabbit' for c in colors + ('any',)) + \
-                         tuple(f'{c} koala' for c in colors + ('any',)) + \
-                         tuple(f'{c} chimpanzee' for c in colors + ('any',)) + \
-                         tuple(f'{c} lamp' for c in colors + ('any',)) + \
-                         tuple(f'{c} sofa' for c in colors + ('any',))
+    words_test_set_def = ()
 
     # get indices of attributes in object feature vector
     dim_body_features = 3
@@ -255,26 +182,6 @@ def get_env_params(max_nb_objects=3,
                 cats.append(k)
         return cats
 
-    def get_obj_color(all_obj_features, i_obj):
-        obj_features = all_obj_features[i_obj]
-        rgb = obj_features[color_inds]
-        for c in colors:
-            for s in shades:
-                color_class = Color(c)
-                if color_class.contains(rgb):
-                    return [c]
-        raise ValueError
-
-    def get_obj_shade(all_obj_features, i_obj):
-        obj_features = all_obj_features[i_obj]
-        rgb = obj_features[color_inds]
-        for c in colors:
-            for s in shades:
-                color_class = Color(c)
-                if color_class.contains(rgb):
-                    return [s]
-        raise ValueError
-
     def get_obj_size(all_obj_features, i_obj):
         obj_features = all_obj_features[i_obj]
         size = obj_features[size_inds]
@@ -282,24 +189,6 @@ def get_env_params(max_nb_objects=3,
             return ['small']
         else:
             return ['big']
-
-    def get_darkest_obj_id(all_obj_features):
-        # list of obj_features
-        shades = np.array(tuple(feature[color_inds].mean() for feature in all_obj_features))
-        return np.argwhere(shades == np.min(shades)).flatten()
-
-    def get_lightest_obj_id(all_obj_features):
-        # list of obj_features
-        shades = np.array(tuple(feature[color_inds].mean() for feature in all_obj_features))
-        return np.argwhere(shades == np.max(shades)).flatten()
-
-    def get_obj_relative_shades(all_obj_features, i_obj):
-        out = []
-        if i_obj in get_darkest_obj_id(all_obj_features):
-            out.append('darkest')
-        if i_obj in get_lightest_obj_id(all_obj_features):
-            out.append('lightest')
-        return out
 
     def get_biggest_obj_id(all_obj_features):
         # list of obj_features
@@ -365,12 +254,8 @@ def get_env_params(max_nb_objects=3,
             out.append('lowest')
         return out
 
-    get_attributes_functions = dict(relative_shades=get_obj_relative_shades,
-                                    relative_sizes=get_obj_relative_sizes,
-                                    relative_positions=get_relative_position,
+    get_attributes_functions = dict(relative_positions=get_relative_position,
                                     positions=get_obj_position,
-                                    colors=get_obj_color,
-                                    shades=get_obj_shade,
                                     sizes=get_obj_size,
                                     types=get_obj_type,
                                     categories=get_obj_cat)

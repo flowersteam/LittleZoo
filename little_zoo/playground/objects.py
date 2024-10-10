@@ -300,7 +300,7 @@ class Animals(LivingThings):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
-class SmallCarnivores(Animals):
+class Carnivores(Animals):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
     
@@ -308,7 +308,7 @@ class SmallCarnivores(Animals):
         
         for obj in objects:
             
-            condition = obj is not None and obj.object_descr['categories'] == 'small_herbivore' and not self.grown_once and obj.grown_once
+            condition = obj is not None and obj.object_descr['categories'] == 'herbivore' and not self.grown_once and obj.grown_once
             condition = condition and (not self.grasped or self in obj_to_release and len(obj_to_release) == 1) and (not obj.grasped or obj in obj_to_release and len(obj_to_release) == 1)
             
             if condition:
@@ -323,58 +323,8 @@ class SmallCarnivores(Animals):
                     rm_obj.append(obj)
         
         return super().update_state(hand_position, gripper_state, objects, object_grasped, action, rm_obj, obj_to_release)
-  
-class BigCarnivores(Animals):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
     
-    def update_state(self, hand_position, gripper_state, objects, object_grasped, action, rm_obj=[], obj_to_release=[]):
-        
-        for i in range(len(objects) - 1):
-            for j in range(i+1, len(objects)):
-                obj1, obj2 = objects[i], objects[j]
-                
-                if obj1 == obj2:
-                    continue
-                
-                condition_small = obj1 is not None and obj2 is not None and not self.grown_once and obj1.object_descr['categories'] == 'small_herbivore' and obj2.object_descr['categories'] == 'small_herbivore'  and obj1.grown_once and obj2.grown_once
-                condition_small = condition_small and ((obj1.grasped and obj2.grasped and obj1 in obj_to_release and obj2 in obj_to_release and not self.grasped) \
-                            or (obj1.grasped and self.grasped and obj1 in obj_to_release and self in obj_to_release and not obj2.grasped) \
-                            or (obj2.grasped and self.grasped and obj2 in obj_to_release and self in obj_to_release and not obj1.grasped))
-                
-                if condition_small:
-                    # check distance
-                    if np.linalg.norm(obj1.position - self.position) < (self.size + obj1.size) / 2 and np.linalg.norm(obj2.position - self.position) < (self.size + obj2.size) / 2:
-                        self.grown_once = True
-                        # check action
-                        size = min(self.size + self.obj_size_update, self.min_max_sizes[1][1] + self.obj_size_update)
-                        
-                        self._update_size(size)
-                        self.grasped = False
-                        rm_obj.append(obj1)
-                        rm_obj.append(obj2)
-        
-        if not condition_small:
-            
-            for obj in objects:
-            
-                condition_big = obj is not None and obj.object_descr['categories'] == 'big_herbivore' and not self.grown_once and obj.grown_once
-                condition_big = condition_big and (not self.grasped or self in obj_to_release and len(obj_to_release) == 1) and (not obj.grasped or obj in obj_to_release and len(obj_to_release) == 1)
-                
-                if condition_big:
-                    # check distance
-                    if np.linalg.norm(obj.position - self.position) < (self.size + obj.size) / 2 and not self.grown_once:
-                        self.grown_once = True
-                        # check action
-                        size = min(self.size + self.obj_size_update, self.min_max_sizes[1][1] + self.obj_size_update)
-                        
-                        self._update_size(size)
-                        self.grasped = False
-                        rm_obj.append(obj)
-        
-        return super().update_state(hand_position, gripper_state, objects, object_grasped, action, rm_obj, obj_to_release)
-    
-class SmallHerbivores(Animals):
+class Herbivores(Animals):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
     
@@ -395,39 +345,6 @@ class SmallHerbivores(Animals):
                     self._update_size(size)
                     self.grasped = False
                     rm_obj.append(obj)
-        
-        return super().update_state(hand_position, gripper_state, objects, object_grasped, action, rm_obj, obj_to_release)
-    
-class BigHerbivores(Animals):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-    
-    def update_state(self, hand_position, gripper_state, objects, object_grasped, action, rm_obj=[], obj_to_release=[]):
-        
-        for i in range(len(objects) - 1):
-            for j in range(i+1, len(objects)):
-                obj1, obj2 = objects[i], objects[j]
-                
-                if obj1 == obj2:
-                    continue
-            
-                condition = obj1 is not None and obj2 is not None and obj1.object_descr['categories'] == 'plant' and obj2.object_descr['categories'] == 'plant' and not self.grown_once and obj1.grown_once and obj2.grown_once
-                condition = condition and ((obj1.grasped and obj2.grasped and obj1 in obj_to_release and obj2 in obj_to_release and not self.grasped) \
-                            or (obj1.grasped and self.grasped and obj1 in obj_to_release and self in obj_to_release and not obj2.grasped) \
-                            or (obj2.grasped and self.grasped and obj2 in obj_to_release and self in obj_to_release and not obj1.grasped))
-                
-                if condition:
-                    # check distance
-                    if np.linalg.norm(obj1.position - self.position) < (self.size + obj1.size) / 2 and np.linalg.norm(obj2.position - self.position) < (self.size + obj2.size) / 2:
-                        self.grown_once = True
-                        # check action
-                        size = min(self.size + self.obj_size_update, self.min_max_sizes[1][1] + self.obj_size_update)
-                        
-                        
-                        self._update_size(size)
-                        self.grasped = False
-                        rm_obj.append(obj1)
-                        rm_obj.append(obj2)
         
         return super().update_state(hand_position, gripper_state, objects, object_grasped, action, rm_obj, obj_to_release)
 
@@ -469,808 +386,114 @@ class Supplies(Thing):
 
 
 # # # # # # # # # # # # # # # # # #
-# Animals
+# Objects
 # # # # # # # # # # # # # # # # # #
 
-
-# Big carnivores
-
-class Lion(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Grizzly(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Shark(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Tiger(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Crocodile(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Wolf(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Leopard(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-# Added Big Carnivores
-
-class Jaguar(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Hyena(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cheetah(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Panther(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cougar(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Puma(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Alligator(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Wolverine(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Orca(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Komodo(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Anaconda(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Python(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Vulture(BigCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-# Small carnivores 
-
-class Fox(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Bobcat(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Coyote(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Ferret(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Meerkat(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-    
-class Raccoon(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Weasel(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-# Added Small Carnivores
-
-class Mink(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Badger(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Otter(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Marten(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Genet(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Civet(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Fossa(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Shrew(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Polecat(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Ocelot(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Coati(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Serval(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Ringtail(SmallCarnivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-# Big herbivores
-
-class Elephant(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Giraffe(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Rhinoceros(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Bison(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Hippopotamus(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Camel(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Moose(BigHerbivores):  # Corrected capitalization
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-# Added Big Herbivores
-
-class Horse(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Zebra(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Buffalo(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Elk(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Antelope(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Wildebeest(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Reindeer(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Caribou(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Ox(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Tapir(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Manatee(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Gorilla(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Okapi(BigHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-# Small herbivores
-
-class Pig(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cow(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Sheep(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Mouse(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Rabbit(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Koala(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Chimpanzee(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-# Added Small Herbivores
-
-class Goat(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Deer(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Beaver(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Hamster(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Squirrel(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Porcupine(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Capybara(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Chinchilla(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Hare(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Wallaby(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Possum(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Lemur(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Hedgehog(SmallHerbivores):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-# # # # # # # # # # # # # # # # # #
-# Plants
-# # # # # # # # # # # # # # # # # #
-
-class Carrot(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Potato(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Beet(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Berry(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Pea(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Broccoli(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Tomato(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Lettuce(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cucumber(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-# Added Plants
-
-class Spinach(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-        
-class Onion(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Garlic(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cabbage(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Radish(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Pumpkin(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Zucchini(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Eggplant(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Pepper(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Kale(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Corn(Plants):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-# # # # # # # # # # # # # # # # # #
-# Furniture
-# # # # # # # # # # # # # # # # # #
-
-class Chair(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Sofa(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Sink(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Window(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Carpet(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Cupboard(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Desk(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Lamp(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
+# Furnitures
 
 class Door(Furnitures):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
-
+class Chair(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+        
+class Desk(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+        
+class Lamp(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+        
 class Table(Furnitures):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-class Bed(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Stool(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cabinet(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Mirror(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Bookshelf(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Dresser(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Bench(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Wardrobe(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Shelf(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Cushion(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-class Clock(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Rug(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Pillow(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Mattress(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Curtain(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Radiator(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Bathtub(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Chandelier(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Fan(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Oven(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Stove(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Fridge(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Freezer(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Toaster(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Blender(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Microwave(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Dishwasher(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Kettle(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Bookcase(Furnitures):
+        
+class Cupboard(Furnitures):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
+# Plants
 
-class Ottoman(Furnitures):
+class Carrot(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Recliner(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Couch(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Hammock(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Piano(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Television(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Stereo(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Speaker(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Radio(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Painting(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Vase(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Doormat(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Planter(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Grill(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Shade(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Blind(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Cup(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Plate(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Knife(Furnitures):
+        
+class Potato(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Fork(Furnitures):
-    def __init__(self, object_descr, object_id_int, params):
-        super().__init__(object_descr, object_id_int, params)
-
-
-class Spoon(Furnitures):
+        
+class Berry(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Bowl(Furnitures):
+        
+class Lettuce(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Tray(Furnitures):
+        
+class Tomato(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Glass(Furnitures):
+        
+class Cucumber(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
+# Herbivores
 
-class Pan(Furnitures):
+class Cow(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Pot(Furnitures):
+        
+class Elephant(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Bucket(Furnitures):
+        
+class Rabbit(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Jar(Furnitures):
+        
+class Deer(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Basket(Furnitures):
+        
+class Sheep(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Bell(Furnitures):
+        
+class Giraffe(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
+# Carnivores
 
-class Ladder(Furnitures):
+class Lion(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Candle(Furnitures):
+        
+class Tiger(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Scissor(Furnitures):
+        
+class Bobcat(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
-
-class Towel(Furnitures):
+class Panthera(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Mug(Furnitures):
+        
+class Coyote(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-class Bottle(Furnitures):
+        
+class Wolf(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
-
-
-# # # # # # # # # # # # # # # # # #
-# Supply
-# # # # # # # # # # # # # # # # # #
 
+# Supplies
 
 class Water(Supplies):
     def __init__(self, object_descr, object_id_int, params):
@@ -1278,193 +501,37 @@ class Water(Supplies):
         
 
 obj_type_to_obj = dict(
-    # Small Herbivores
-    pig=Pig,
-    cow=Cow,
-    sheep=Sheep,
-    mouse=Mouse,
-    rabbit=Rabbit,
-    koala=Koala,
-    chimpanzee=Chimpanzee,
-    goat=Goat,
-    deer=Deer,
-    beaver=Beaver,
-    hamster=Hamster,
-    squirrel=Squirrel,
-    porcupine=Porcupine,
-    capybara=Capybara,
-    chinchilla=Chinchilla,
-    hare=Hare,
-    wallaby=Wallaby,
-    possum=Possum,
-    lemur=Lemur,
-    hedgehog=Hedgehog,
-
-    # Big Herbivores
-    elephant=Elephant,
-    giraffe=Giraffe,
-    rhinoceros=Rhinoceros,
-    hippopotamus=Hippopotamus,
-    bison=Bison,
-    camel=Camel,
-    moose=Moose,
-    horse=Horse,
-    zebra=Zebra,
-    buffalo=Buffalo,
-    elk=Elk,
-    antelope=Antelope,
-    wildebeest=Wildebeest,
-    reindeer=Reindeer,
-    caribou=Caribou,
-    ox=Ox,
-    tapir=Tapir,
-    manatee=Manatee,
-    gorilla=Gorilla,
-    okapi=Okapi,
-
-    # Small Carnivores
-    fox=Fox,
-    bobcat=Bobcat,
-    coyote=Coyote,
-    ferret=Ferret,
-    meerkat=Meerkat,
-    raccoon=Raccoon,
-    weasel=Weasel,
-    mink=Mink,
-    badger=Badger,
-    otter=Otter,
-    marten=Marten,
-    genet=Genet,
-    civet=Civet,
-    fossa=Fossa,
-    shrew=Shrew,
-    polecat=Polecat,
-    ocelot=Ocelot,
-    coati=Coati,
-    serval=Serval,
-    ringtail=Ringtail,
-
-    # Big Carnivores
-    lion=Lion,
-    grizzly=Grizzly,
-    shark=Shark,
-    tiger=Tiger,
-    crocodile=Crocodile,
-    wolf=Wolf,
-    leopard=Leopard,
-    jaguar=Jaguar,
-    hyena=Hyena,
-    cheetah=Cheetah,
-    panther=Panther,
-    cougar=Cougar,
-    puma=Puma,
-    alligator=Alligator,
-    wolverine=Wolverine,
-    orca=Orca,
-    komodo=Komodo,
-    anaconda=Anaconda,
-    python=Python,
-    vulture=Vulture,
-
-    # Plants
-    carrot=Carrot,
-    potato=Potato,
-    beet=Beet,
-    berry=Berry,
-    pea=Pea,
-    broccoli=Broccoli,
-    lettuce=Lettuce,
-    tomato=Tomato,
-    cucumber=Cucumber,
-    spinach=Spinach,
-    onion=Onion,
-    garlic=Garlic,
-    cabbage=Cabbage,
-    radish=Radish,
-    pumpkin=Pumpkin,
-    zucchini=Zucchini,
-    eggplant=Eggplant,
-    pepper=Pepper,
-    kale=Kale,
-    corn=Corn,
-
-    # Furnitures
+    # furnitures
     door=Door,
     chair=Chair,
     desk=Desk,
     lamp=Lamp,
     table=Table,
     cupboard=Cupboard,
-    sink=Sink,
-    window=Window,
-    sofa=Sofa,
-    carpet=Carpet,
-    bed=Bed,
-    stool=Stool,
-    cabinet=Cabinet,
-    mirror=Mirror,
-    bookshelf=Bookshelf,
-    dresser=Dresser,
-    bench=Bench,
-    wardrobe=Wardrobe,
-    shelf=Shelf,
-    cushion=Cushion,
-    clock=Clock,
-    rug=Rug,
-    pillow=Pillow,
-    mattress=Mattress,
-    curtain=Curtain,
-    radiator=Radiator,
-    bathtub=Bathtub,
-    chandelier=Chandelier,
-    fan=Fan,
-    oven=Oven,
-    stove=Stove,
-    fridge=Fridge,
-    freezer=Freezer,
-    toaster=Toaster,
-    blender=Blender,
-    microwave=Microwave,
-    dishwasher=Dishwasher,
-    kettle=Kettle,
-    bookcase=Bookcase,
-    ottoman=Ottoman,
-    recliner=Recliner,
-    couch=Couch,
-    hammock=Hammock,
-    piano=Piano,
-    television=Television,
-    stereo=Stereo,
-    speaker=Speaker,
-    radio=Radio,
-    painting=Painting,
-    vase=Vase,
-    doormat=Doormat,
-    planter=Planter,
-    grill=Grill,
-    shade=Shade,
-    blind=Blind,
-    cup=Cup,
-    plate=Plate,
-    knife=Knife,
-    fork=Fork,
-    spoon=Spoon,
-    bowl=Bowl,
-    tray=Tray,
-    glass=Glass,
-    pan=Pan,
-    pot=Pot,
-    bucket=Bucket,
-    jar=Jar,
-    basket=Basket,
-    bell=Bell,
-    ladder=Ladder,
-    candle=Candle,
-    scissor=Scissor,
-    towel=Towel,
-    mug=Mug,
-    bottle=Bottle,
-
+    
+    # plants
+    carrot=Carrot,
+    potato=Potato,
+    berry=Berry,
+    lettuce=Lettuce,
+    tomato=Tomato,
+    cucumber=Cucumber,
+    
+    # herbivores
+    cow=Cow,
+    elephant=Elephant,
+    rabbit=Rabbit,
+    deer=Deer,
+    sheep=Sheep,
+    giraffe=Giraffe,
+    
+    # carnivores
+    lion=Lion,
+    tiger=Tiger,
+    bobcat=Bobcat,
+    panthera=Panthera,
+    coyote=Coyote,
+    wolf=Wolf,
 
     # supplies
     water=Water

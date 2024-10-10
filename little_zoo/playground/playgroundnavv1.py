@@ -27,10 +27,10 @@ class PlayGroundNavigationV1(gym.Env):
                  agent_step_size=0.15,
                  agent_initial_pos=(0,0),
                  agent_initial_pos_range=0.6,
-                 max_nb_objects=3,  # number of objects in the scene
+                 max_nb_objects=4,  # number of objects in the scene
                  random_nb_obj=False,
                  admissible_actions=('Move', 'Grasp', 'Grow'),  # which types of actions are admissible
-                 admissible_attributes=('colors', 'categories', 'types'),#, 'relative_sizes', 'shades', 'relative_shades', 'sizes', 'relative_positions'),
+                 admissible_attributes=('categories', 'types'),#, 'relative_sizes', 'shades', 'relative_shades', 'sizes', 'relative_positions'),
                  # which object attributes
                  # can be used
                  min_max_sizes=((0.2, 0.25), (0.25, 0.3)),  # ranges of sizes of objects (small and large ones)
@@ -100,29 +100,6 @@ class PlayGroundNavigationV1(gym.Env):
         self.agent_initial_pos = agent_initial_pos
         self.agent_initial_pos_range = agent_initial_pos_range
         
-        # Object included
-        self.remove_train = False
-        self.remove_test = False
-        
-        self.single_adaptation = False
-        self.multiple_adaptation = False
-        self.dissimilar_impossible = False
-        self.similar_impossible = False
-        
-        self.train_set = ('door', 'chair', 'desk', 'table', 'cupboard', 'sink', 'window', 'sofa', 'carpet', 'carrot', 'beet', 'berry', 'pea', 'lion', 'grizzly', 'fox', 'bobcat', 'elephant', 'giraffe', 'pig', 'sheep')
-        self.test_set = (
-            'potato', 'broccoli', 'lettuce', 'tomato', 'cucumber',
-            'shark', 'tiger', 'crocodile', 'wolf', 'leopard', 'coyote',
-            'ferret', 'meerkat', 'raccoon', 'weasel', 'rhinoceros',
-            'hippopotamus', 'bison', 'camel', 'moose', 'cow', 'mouse',
-            'rabbit', 'koala', 'chimpanzee', 'lamp', 'sofa'
-        )
-        self.single_adaptation_set = ('potato', 'tiger', 'coyote', 'rhinoceros', 'cow')
-        
-        if self.single_adaptation:
-            self.train_set += self.single_adaptation_set
-            self.test_set = tuple(t for t in self.test_set if t not in self.single_adaptation_set)
-
         # rendering
         self.human = human
         self.render_mode = render_mode
@@ -187,85 +164,13 @@ class PlayGroundNavigationV1(gym.Env):
         return objects_decr.copy()
 
 
-    def reset_with_goal(self, goal_str):
-        objs = []
-        goals = goal_str.split(' then ')
+    def reset_with_goal(self, env_desc):
         
-        for goal in goals:
-            words = goal.split(' ')
-
-            if words[0].lower() == 'grow':
-                obj_to_be_grown = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))]))
-                obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))]))
-
-                # first add the object that should be grown
-                for w in words[1:]:
-                    for k in self.adm_abs_attributes:
-                        if w in self.attributes[k]:
-                            obj_to_be_grown[k] = w
-                if obj_to_be_grown['categories'] is None and obj_to_be_grown['types'] is None:
-                    # if only attributes are proposed, sample a grownable object type
-                    obj_to_be_grown['categories'] = np.random.choice(['small_herbivore', 'big_herbivore', 'small_carnivore', 'big_carnivore', 'plant'])
-                
-                if obj_to_be_grown['types'] is None:
-                    obj_to_be_grown['types'] = np.random.choice(self.categories[obj_to_be_grown['categories']])
-                    
-                objs.append(obj_to_be_grown.copy())
-
-                # now sample the supply
-                if obj_to_be_grown['types'] in self.categories['plant']:
-                    obj_supply.update(dict(categories='supply', types='water'))
-                    objs.append(obj_supply.copy())
-                elif obj_to_be_grown['types'] in self.categories['small_herbivore']:
-                    obj_supply.update(dict(categories='supply', types='water'))
-                    objs.append(obj_supply.copy())
-                    obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                    obj_supply.update(dict(categories='plant'))
-                    objs.append(obj_supply.copy())
-                elif obj_to_be_grown['types'] in self.categories['big_herbivore']:
-                    for _ in range(2):
-                        obj_supply.update(dict(categories='supply', types='water'))
-                        objs.append(obj_supply.copy())
-                        obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                        obj_supply.update(dict(categories='plant'))
-                        objs.append(obj_supply.copy())
-                        obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                elif obj_to_be_grown['types'] in self.categories['small_carnivore']:
-                    obj_supply.update(dict(categories='supply', types='water'))
-                    objs.append(obj_supply.copy())
-                    obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                    obj_supply.update(dict(categories='plant'))
-                    objs.append(obj_supply.copy())
-                    obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                    obj_supply.update(dict(categories='small_herbivore'))
-                    objs.append(obj_supply.copy())
-                else:
-                    for _ in range(2):
-                        obj_supply.update(dict(categories='supply', types='water'))
-                        objs.append(obj_supply.copy())
-                        obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                        obj_supply.update(dict(categories='plant'))
-                        objs.append(obj_supply.copy())
-                        obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                    
-                    if np.random.uniform() < 0.5:
-                        obj_supply.update(dict(categories='big_herbivore'))
-                        objs.append(obj_supply.copy())
-                        obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                    else:
-                        for _ in range(2):
-                            obj_supply.update(dict(categories='small_herbivore'))
-                            objs.append(obj_supply.copy())
-                            obj_supply = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] )) 
-                        
-
-            else:
-                obj = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))] ))
-                for w in words[1:]:
-                    for k in self.adm_abs_attributes:
-                        if w in self.attributes[k]:
-                            obj[k] = w
-                objs.append(obj.copy())
+        objs = []
+        for obj in env_desc[1:]:
+            to_add = dict(zip(self.adm_abs_attributes, [None for _ in range(len(self.adm_abs_attributes))]))
+            to_add.update(dict(types=obj))
+            objs.append(to_add.copy())
 
         return self.reset_scene(objs)
 
@@ -327,10 +232,7 @@ class PlayGroundNavigationV1(gym.Env):
                ((-ypos + 1) / 2 * (self.params['screen_size'] * 2 / 3) + 1 / 6 * self.params['screen_size']).astype(np.int64)
 
     def types_filter(self, types):
-        if self.remove_train:
-            types = tuple(t for t in types if t not in self.train_set)
-        if self.remove_test:
-            types = tuple(t for t in types if t not in self.test_set)
+        # Not used yet
         return types
 
     def sample_objects(self, objects_to_add):

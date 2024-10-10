@@ -1,4 +1,3 @@
-import numpy as np
 from little_zoo.playground.env_params import get_env_params
 from little_zoo.playground.descriptions import generate_all_descriptions
 
@@ -293,6 +292,7 @@ def get_reward_from_state(state, goal, params):
 
 
     words = goal.split(' ')
+    goal = words[0] + ' any ' + words[1]
     reward = False
 
     if words[0] == 'Go':
