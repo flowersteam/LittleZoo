@@ -49,24 +49,23 @@ def get_env_params(max_nb_objects=3,
 
     # list objects and categories
     furnitures = (
-        'door', 'chair', 'desk', 'lamp', 'table', 'cupboard'
+        'door', 'chair', 'desk', 'sofa', 'bookshelf', 'bed', 'lamp', 'table', 'cupboard'
     )
 
-    
     plants = (
-        'carrot', 'potato', 'berry', 'lettuce', 'tomato', 'cucumber'
+        'carrot', 'potato', 'berry', 'onion', 'tomato', 'cucumber', 'spinach', 'broccoli', 'lettuce'
     )
 
     herbivores = (
-        'cow', 'elephant', 'rabbit', 'deer', 'sheep', 'giraffe'
-    )
-    
-    carnivores = (
-        'lion', 'tiger', 'bobcat', 'panthera', 'coyote', 'wolf'
+        'cow', 'elephant', 'bison', 'deer', 'sheep', 'giraffe', 'goat', 'horse', 'rabbit'
     )
 
-    
+    carnivores = (
+        'lion', 'jackal', 'bobcat', 'panthera', 'coyote', 'wolf', 'leopard', 'hyena', 'tiger'
+    )
+
     supplies = ('water',)
+
     
     animals = herbivores + carnivores
     living_things = animals + plants

@@ -414,6 +414,19 @@ class Table(Furnitures):
 class Cupboard(Furnitures):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
+        
+class Sofa(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Bookshelf(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Bed(Furnitures):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
 
 # Plants
 
@@ -438,6 +451,18 @@ class Tomato(Plants):
         super().__init__(object_descr, object_id_int, params)
         
 class Cucumber(Plants):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+        
+class Spinach(Plants):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Broccoli(Plants):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Onion(Plants):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
 
@@ -466,6 +491,19 @@ class Sheep(Herbivores):
 class Giraffe(Herbivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
+        
+class Goat(Herbivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Horse(Herbivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Bison(Herbivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
 
 # Carnivores
 
@@ -492,6 +530,19 @@ class Coyote(Carnivores):
 class Wolf(Carnivores):
     def __init__(self, object_descr, object_id_int, params):
         super().__init__(object_descr, object_id_int, params)
+        
+class Leopard(Carnivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Hyena(Carnivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
+class Jackal(Carnivores):
+    def __init__(self, object_descr, object_id_int, params):
+        super().__init__(object_descr, object_id_int, params)
+
 
 # Supplies
 
@@ -508,6 +559,9 @@ obj_type_to_obj = dict(
     lamp=Lamp,
     table=Table,
     cupboard=Cupboard,
+    sofa=Sofa,
+    bookshelf=Bookshelf,
+    bed=Bed,
     
     # plants
     carrot=Carrot,
@@ -516,6 +570,9 @@ obj_type_to_obj = dict(
     lettuce=Lettuce,
     tomato=Tomato,
     cucumber=Cucumber,
+    spinach=Spinach,
+    broccoli=Broccoli,
+    onion=Onion,
     
     # herbivores
     cow=Cow,
@@ -524,6 +581,9 @@ obj_type_to_obj = dict(
     deer=Deer,
     sheep=Sheep,
     giraffe=Giraffe,
+    goat=Goat,
+    horse=Horse,
+    bison=Bison,
     
     # carnivores
     lion=Lion,
@@ -532,6 +592,9 @@ obj_type_to_obj = dict(
     panthera=Panthera,
     coyote=Coyote,
     wolf=Wolf,
+    leopard=Leopard,
+    hyena=Hyena,
+    jackal=Jackal,
 
     # supplies
     water=Water
