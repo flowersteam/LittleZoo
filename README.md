@@ -1,38 +1,44 @@
-# LittleZoo 🦁  
+# 🌿 LittleZoo 🦁
 
-LittleZoo is a Gym environment built on top of the [Playground environment](https://github.com/flowersteam/playground_env). It features natural language interactions, where actions are given as text commands, and observations are returned as textual scene descriptions.  
+**A natural language Gym environment for goal-conditioned reinforcement learning**
 
-## Installation  
+LittleZoo is a Gym environment built on top of the [Playground environment](https://github.com/flowersteam/playground_env). It enables agents to interact through natural language, where actions are given as text commands, and observations are returned as textual scene descriptions. This makes it an ideal testbed for LLM agents.
 
-First, create a Conda environment:  
+---
+
+## 🚀 Installation
+
+First, create a Conda environment:
 
 ```sh
 conda create -n littlezoo python=3.10
 conda activate littlezoo
-```  
+```
 
-Then, install the dependencies:  
+Then, install the dependencies:
 
 ```sh
 git clone https://github.com/LorisGaven/LittleZoo.git
 cd LittleZoo/little_zoo
 pip install -e .
-```  
+```
 
-## Environment Description  
+---
 
-### Observations  
+## 🌍 Environment Overview
 
-The environment provides observations and additional information in the following formats:  
+### 🔍 Observations
 
-- **Observation** (str):  
+The environment provides observations in a structured textual format, along with additional information:
+
+- **Observation** (str):
   ```text
   You see: <obj_1>, <obj_2>, <obj_3>, <obj_4>
   You are standing on: <obj_i> | "nothing"
   Inventory (n/2): <obj_i>, <obj_j> | "empty"
-  ```  
+  ```
 
-- **Info** (dict):  
+- **Info** (dict):
   ```python
   {
       'goal': <goal>,
@@ -41,39 +47,73 @@ The environment provides observations and additional information in the followin
           'Go to <obj_1>', 'Go to <obj_2>', ..., 'Go to <obj_n>'
       ]
   }
-  ```  
+  ```
 
-### Actions  
+### 🎮 Actions
 
-Agents interact with the environment by passing a string representing the desired action to the `step()` function. Valid actions include:  
+Agents interact by passing a string to the `step()` function. Valid actions include:
 
-- **`"Go to <obj_i>"`**: Move to the location of object `<obj_i>`.  
-- **`"Grasp"`**: Pick up the object the agent is standing on, if the inventory is not full.  
-- **`"Release <obj_i>"`**: Drop the specified object from the inventory.  
-- **`"Release both"`**: Drop both objects in the inventory.  
+- **`"Go to <obj_i>"`** → Move to the object `<obj_i>`.
+- **`"Grasp"`** → Pick up an object if inventory space allows.
+- **`"Release <obj_i>"`** → Drop a specific object.
+- **`"Release both"`** → Drop all held objects.
 
-### Goals  
+### 🎯 Goals
 
-There are four categories of goals, each with increasing difficulty:  
+LittleZoo offers four categories of hierarchical goals, increasing in complexity:
 
-1. **Grasp {obj}**: Navigate to the object and grasp it.  
-2. **Grow {plant}**: Grow a plant by providing it with water.  
-3. **Grow {herbivore}**: First, grow a plant, then feed it to a herbivore to help it grow.  
-4. **Grow {carnivore}**: Grow a herbivore, then feed it to a carnivore.  
+1. **Grasp {obj}** → Navigate and grasp an object.
+2. **Grow {plant}** → Provide water to grow a plant.
+3. **Grow {herbivore}** → Grow a plant, then feed it to a herbivore.
+4. **Grow {carnivore}** → Grow a herbivore, then feed it to a carnivore.
 
-### Object Categories  
+- **Reward Structure:**
+  - Achieving a goal grants **+1 reward** and ends the episode.
+  - Otherwise, the reward is **0**.
+  
+- **Step Limits:**
+  - **Grasp:** 3 steps
+  - **Grow Plant:** 6 steps
+  - **Grow Herbivore:** 10 steps
+  - **Grow Carnivore:** 15 steps
+  - **Impossible goals (e.g., "Grow table")**: 10 steps
 
-#### **Furniture**  
-- Door, Chair, Desk, Lamp, Table, Cupboard, Sofa, Bookshelf, Bed  
+---
 
-#### **Plants**  
-- Carrot, Potato, Berry, Lettuce, Tomato, Cucumber, Spinach, Broccoli, Onion  
+## 📦 Object Categories
 
-#### **Herbivores**  
-- Cow, Elephant, Rabbit, Deer, Sheep, Giraffe, Goat, Horse, Bison  
+### 🏠 **Furniture**
+Door, Chair, Desk, Lamp, Table, Cupboard, Sofa, Bookshelf, Bed
 
-#### **Carnivores**  
-- Lion, Tiger, Bobcat, Panther, Coyote, Wolf, Leopard, Hyena, Jackal  
+### 🌱 **Plants**
+Carrot, Potato, Berry, Lettuce, Tomato, Cucumber, Spinach, Broccoli, Onion
 
-#### **Supplies**  
-- Water  
+### 🐮 **Herbivores**
+Cow, Elephant, Rabbit, Deer, Sheep, Giraffe, Goat, Horse, Bison
+
+### 🦁 **Carnivores**
+Lion, Tiger, Bobcat, Panther, Coyote, Wolf, Leopard, Hyena, Jackal
+
+### 💧 **Supplies**
+Water
+
+---
+
+## 📖 Citation
+
+If you use LittleZoo in your research, please cite:
+
+```bibtex
+@article{gaven2025magellan,
+  title={MAGELLAN: Metacognitive predictions of learning progress guide autotelic LLM agents in large goal spaces},
+  author={Gaven, Loris and Carta, Thomas and Romac, Cl{\'e}ment and Colas, C{\'e}dric and Lamprier, Sylvain and Sigaud, Olivier and Oudeyer, Pierre-Yves},
+  journal={arXiv preprint arXiv:2502.07709},
+  year={2025}
+}
+```
+
+---
+
+## 💡 Contribute
+
+If you’d like to contribute to LittleZoo, feel free to open an issue or submit a pull request on [GitHub](https://github.com/LorisGaven/LittleZoo). 🚀
