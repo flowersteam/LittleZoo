@@ -19,7 +19,7 @@ Then, install the dependencies:
 
 ```sh
 git clone https://github.com/LorisGaven/LittleZoo.git
-cd LittleZoo/little_zoo
+cd LittleZoo
 pip install -e .
 ```
 
